@@ -138,8 +138,8 @@ impl Item {
         &self.item_row.id
     }
 
-    pub async fn item_name(&self) -> &str {
-        &self.item_row.item_name
+    pub async fn name(&self) -> &str {
+        &self.item_row.name
     }
 
     pub async fn type_of(&self) -> ItemType {

@@ -17,12 +17,12 @@ impl Mutations {
         &self,
         ctx: &Context<'_>,
         #[graphql(desc = "id of the item")] id: String,
-        #[graphql(desc = "name of the item")] item_name: String,
+        #[graphql(desc = "name of the item")] name: String,
         #[graphql(desc = "type of the item")] type_of: ItemType,
     ) -> Item {
         let item_row = ItemRow {
             id,
-            item_name,
+            name,
             type_of: type_of.into(),
         };
 

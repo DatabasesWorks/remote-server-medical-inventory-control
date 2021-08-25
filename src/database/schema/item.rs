@@ -13,6 +13,6 @@ pub enum ItemRowType {
 #[derive(Clone)]
 pub struct ItemRow {
     pub id: String,
-    pub item_name: String,
+    pub name: String,
     pub type_of: ItemRowType,
 }

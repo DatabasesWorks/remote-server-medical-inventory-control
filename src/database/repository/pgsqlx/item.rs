@@ -14,11 +14,11 @@ impl ItemRepository {
     pub async fn insert_one(&self, item: &ItemRow) -> Result<(), RepositoryError> {
         sqlx::query!(
             r#"
-            INSERT INTO item (id, item_name, type_of)
+            INSERT INTO item (id, name, type_of)
             VALUES ($1, $2, $3)
             "#,
             item.id,
-            item.item_name,
+            item.name,
             item.type_of.clone() as ItemRowType,
         )
         .execute(&self.pool)
@@ -31,7 +31,7 @@ impl ItemRepository {
         let items = sqlx::query_as!(
             ItemRow,
             r#"
-            SELECT id, item_name, type_of AS "type_of!: ItemRowType"
+            SELECT id, name, type_of AS "type_of!: ItemRowType"
             FROM item
             "#,
         )
@@ -45,7 +45,7 @@ impl ItemRepository {
         let item = sqlx::query_as!(
             ItemRow,
             r#"
-            SELECT id, item_name, type_of AS "type_of!: ItemRowType"
+            SELECT id, name, type_of AS "type_of!: ItemRowType"
             FROM item
             WHERE id = $1
             "#,
@@ -61,7 +61,7 @@ impl ItemRepository {
         let items = sqlx::query_as!(
             ItemRow,
             r#"
-            SELECT id, item_name, type_of AS "type_of!: ItemRowType"
+            SELECT id, name, type_of AS "type_of!: ItemRowType"
             FROM item
             WHERE id = ANY($1)
             "#,
