@@ -1,6 +1,7 @@
 mod item;
 mod item_line;
 mod item_property;
+mod item_property_join;
 mod name;
 mod requisition;
 mod requisition_line;
@@ -21,11 +22,13 @@ pub enum DatabaseRow {
     TransactLine(TransactLineRow),
     UserAccount(UserAccountRow),
     ItemProperty(ItemPropertyRow),
+    ItemPropertyJoin(ItemPropertyJoinRow),
 }
 
 pub use item::{ItemRow, ItemRowType};
 pub use item_line::ItemLineRow;
 pub use item_property::ItemPropertyRow;
+pub use item_property_join::ItemPropertyJoinRow;
 pub use name::NameRow;
 pub use requisition::{RequisitionRow, RequisitionRowType};
 pub use requisition_line::RequisitionLineRow;
