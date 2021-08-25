@@ -1,4 +1,4 @@
--- Create user table
+-- Create user_account table
 
 CREATE EXTENSION pgcrypto;
 
