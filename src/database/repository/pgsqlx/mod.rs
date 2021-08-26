@@ -8,6 +8,7 @@ use {
 
 mod item;
 mod item_line;
+mod item_property;
 mod name;
 mod requisition;
 mod requisition_line;
@@ -18,6 +19,7 @@ mod user_account;
 
 pub use item::ItemRepository;
 pub use item_line::ItemLineRepository;
+pub use item_property::ItemPropertyRepository;
 pub use name::NameRepository;
 pub use requisition::RequisitionRepository;
 pub use requisition_line::RequisitionLineRepository;
