@@ -3,8 +3,8 @@ use {
         database::{
             mock,
             schema::{
-                DatabaseRow, ItemLineRow, ItemRow, NameRow, RequisitionLineRow, RequisitionRow,
-                StoreRow, TransactLineRow, TransactRow, UserAccountRow,
+                DatabaseRow, ItemLineRow, ItemPropertyRow, ItemRow, NameRow, RequisitionLineRow,
+                RequisitionRow, StoreRow, TransactLineRow, TransactRow, UserAccountRow,
             },
         },
         server::data::RepositoryMap,
@@ -18,6 +18,7 @@ use {
 
 mod item;
 mod item_line;
+mod item_property;
 mod name;
 mod requisition;
 mod requisition_line;
@@ -28,6 +29,7 @@ mod user_account;
 
 pub use item::ItemRepository;
 pub use item_line::ItemLineRepository;
+pub use item_property::ItemPropertyRepository;
 pub use name::NameRepository;
 pub use requisition::RequisitionRepository;
 pub use requisition_line::RequisitionLineRepository;
@@ -42,6 +44,7 @@ pub async fn get_repositories(_: &Settings) -> RepositoryMap {
     let mock_names: Vec<NameRow> = mock::mock_names();
     let mock_items: Vec<ItemRow> = mock::mock_items();
     let mock_item_lines: Vec<ItemLineRow> = mock::mock_item_lines();
+    let mock_item_properties: Vec<ItemPropertyRow> = mock::mock_item_properties();
     let mock_requisitions: Vec<RequisitionRow> = mock::mock_requisitions();
     let mock_requisition_lines: Vec<RequisitionLineRow> = mock::mock_requisition_lines();
     let mock_stores: Vec<StoreRow> = mock::mock_stores();
@@ -61,6 +64,13 @@ pub async fn get_repositories(_: &Settings) -> RepositoryMap {
         mock_data.insert(
             item_line.id.to_string(),
             DatabaseRow::ItemLine(item_line.clone()),
+        );
+    }
+
+    for item_property in mock_item_properties {
+        mock_data.insert(
+            item_property.id.to_string(),
+            DatabaseRow::ItemProperty(item_property.clone()),
         );
     }
 
@@ -109,6 +119,7 @@ pub async fn get_repositories(_: &Settings) -> RepositoryMap {
     repositories.insert(CustomerInvoiceRepository::new(Arc::clone(&mock_data)));
     repositories.insert(ItemRepository::new(Arc::clone(&mock_data)));
     repositories.insert(ItemLineRepository::new(Arc::clone(&mock_data)));
+    repositories.insert(ItemPropertyRepository::new(Arc::clone(&mock_data)));
     repositories.insert(NameRepository::new(Arc::clone(&mock_data)));
     repositories.insert(RequisitionRepository::new(Arc::clone(&mock_data)));
     repositories.insert(RequisitionLineRepository::new(Arc::clone(&mock_data)));
