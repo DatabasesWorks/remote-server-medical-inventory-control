@@ -6,7 +6,7 @@ sync:
   password: "password"
   interval: 300
 database:
-  host: "127.0.0.1"
+  host: "localhost"
   port: 5432
   username: "postgres"
   password: "password"
