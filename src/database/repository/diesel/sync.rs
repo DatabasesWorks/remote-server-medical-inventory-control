@@ -9,7 +9,10 @@ use crate::database::{
     schema::{ItemRow, MasterListLineRow, MasterListNameJoinRow, MasterListRow, NameRow, StoreRow},
 };
 
+use std::future::Future;
+
 use diesel::{
+    connection::TransactionManager,
     prelude::*,
     r2d2::{ConnectionManager, Pool},
 };
@@ -35,6 +38,33 @@ pub struct SyncSession {
     tx: DBConnection,
 }
 
+impl SyncSession {
+    pub async fn transaction<'a, F, Fut>(&'a self, f: F) -> Result<(), String>
+    where
+        F: FnOnce(&'a SyncSession) -> Fut,
+        Fut: Future<Output = Result<(), String>>,
+    {
+        let transaction_manager = self.tx.transaction_manager();
+        transaction_manager
+            .begin_transaction(&self.tx)
+            .map_err(|_| "Failed to start tx".to_string())?;
+        match f(&self).await {
+            Ok(value) => {
+                transaction_manager
+                    .commit_transaction(&self.tx)
+                    .map_err(|_| "Failed to end tx".to_string())?;
+                Ok(value)
+            }
+            Err(e) => {
+                transaction_manager
+                    .rollback_transaction(&self.tx)
+                    .map_err(|_| "Failed to rollback tx".to_string())?;
+                Err(e)
+            }
+        }
+    }
+}
+
 impl SyncRepository {
     pub fn new(pool: Pool<ConnectionManager<DBBackendConnection>>) -> SyncRepository {
         SyncRepository { pool }
@@ -56,30 +86,28 @@ impl SyncRepository {
         integration_records: &IntegrationRecord,
     ) -> Result<(), RepositoryError> {
         let tx = &session.tx;
-        tx.transaction(|| {
-            for record in &integration_records.upserts {
-                match &record {
-                    IntegrationUpsertRecord::Name(record) => {
-                        NameRepository::upsert_one_tx(&tx, record)?
-                    }
-                    IntegrationUpsertRecord::Item(record) => {
-                        ItemRepository::upsert_one_tx(&tx, record)?
-                    }
-                    IntegrationUpsertRecord::Store(record) => {
-                        StoreRepository::upsert_one_tx(&tx, record)?
-                    }
-                    IntegrationUpsertRecord::MasterList(record) => {
-                        MasterListRepository::upsert_one_tx(&tx, record)?
-                    }
-                    IntegrationUpsertRecord::MasterListLine(record) => {
-                        MasterListLineRepository::upsert_one_tx(&tx, record)?
-                    }
-                    IntegrationUpsertRecord::MasterListNameJoin(record) => {
-                        MasterListNameJoinRepository::upsert_one_tx(&tx, record)?
-                    }
+        for record in &integration_records.upserts {
+            match &record {
+                IntegrationUpsertRecord::Name(record) => {
+                    NameRepository::upsert_one_tx(&tx, record)?
+                }
+                IntegrationUpsertRecord::Item(record) => {
+                    ItemRepository::upsert_one_tx(&tx, record)?
+                }
+                IntegrationUpsertRecord::Store(record) => {
+                    StoreRepository::upsert_one_tx(&tx, record)?
+                }
+                IntegrationUpsertRecord::MasterList(record) => {
+                    MasterListRepository::upsert_one_tx(&tx, record)?
+                }
+                IntegrationUpsertRecord::MasterListLine(record) => {
+                    MasterListLineRepository::upsert_one_tx(&tx, record)?
+                }
+                IntegrationUpsertRecord::MasterListNameJoin(record) => {
+                    MasterListNameJoinRepository::upsert_one_tx(&tx, record)?
                 }
             }
-            Ok(())
-        })
+        }
+        Ok(())
     }
 }

@@ -175,27 +175,35 @@ impl SyncReceiverActor {
     ) -> Result<(), String> {
         let central_sync_buffer_repository: &CentralSyncBufferRepository =
             repositories.get::<CentralSyncBufferRepository>();
-        let sync_session = repositories
-            .get::<SyncRepository>()
+
+        let sync_repo = repositories.get::<SyncRepository>();
+        let session = sync_repo
             .new_sync_session()
             .await
-            .unwrap();
-        for table_name in TRANSLATION_RECORDS {
-            let buffer_rows = central_sync_buffer_repository
-                .get_sync_entries(table_name)
-                .await
-                .map_err(|_| "Failed to read central sync entries".to_string())?;
-            let records = buffer_rows
-                .into_iter()
-                .map(|row| SyncRecord {
-                    record_id: row.record_id,
-                    sync_type: SyncType::Insert,
-                    record_type: row.table_name,
-                    data: row.data,
-                })
-                .collect();
-            import_sync_records(&sync_session, repositories, &records).await?;
-        }
+            .map_err(|_| "Failed to get sync session".to_string())?;
+        session
+            .transaction(|sync_session| async move {
+                for table_name in TRANSLATION_RECORDS {
+                    let buffer_rows = central_sync_buffer_repository
+                        .get_sync_entries(table_name)
+                        .await
+                        .map_err(|_| "Failed to read central sync entries".to_string())?;
+                    let records = buffer_rows
+                        .into_iter()
+                        .map(|row| SyncRecord {
+                            record_id: row.record_id,
+                            sync_type: SyncType::Insert,
+                            record_type: row.table_name,
+                            data: row.data,
+                        })
+                        .collect();
+                    import_sync_records(sync_session, repositories, &records).await?;
+                }
+                Ok(())
+            })
+            .await?;
+
+        // we integrated the whole sync buffer, clear it:
         central_sync_buffer_repository
             .remove_all()
             .await
