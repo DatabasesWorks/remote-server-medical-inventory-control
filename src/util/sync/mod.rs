@@ -29,7 +29,7 @@ use tokio::{
     time::{self, Duration, Interval},
 };
 
-use self::translation::{import_sync_records, SyncRecord, SyncType, TRANSLATION_RECORDS};
+use translation::{import_sync_records, SyncRecord, SyncType, TRANSLATION_RECORDS};
 
 pub fn get_sync_actors(connection: SyncConnection) -> (SyncSenderActor, SyncReceiverActor) {
     // We use a single-element channel so that we can only have one sync pending at a time.
