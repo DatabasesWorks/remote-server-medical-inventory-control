@@ -3,7 +3,7 @@ use async_graphql::InputObject;
 #[derive(InputObject)]
 pub struct Pagination {
     pub first: Option<u32>,
-    pub offset: Option<u32>,
+    pub offset: Option<i32>,
 }
 
 pub trait PaginationOption {
@@ -12,6 +12,7 @@ pub trait PaginationOption {
 }
 
 pub const DEFAULT_PAGE_SIZE: u32 = 100;
+pub const MAX_PAGE_SIZE: u32 = 200;
 
 impl PaginationOption for Option<Pagination> {
     fn first(&self) -> i64 {

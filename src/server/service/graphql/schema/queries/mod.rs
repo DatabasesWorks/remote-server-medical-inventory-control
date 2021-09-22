@@ -7,8 +7,8 @@ use crate::database::schema::{InvoiceLineRow, InvoiceRow, RequisitionRow, StoreR
 use crate::server::service::graphql::schema::types::{Invoice, InvoiceLine, Requisition, Store};
 use crate::server::service::graphql::ContextExt;
 
-use super::types::{ItemList, NameList};
-use async_graphql::{Context, Object};
+use super::types::{ItemList, NameListWithError};
+use async_graphql::*;
 use pagination::Pagination;
 pub struct Queries;
 
@@ -23,8 +23,8 @@ impl Queries {
         &self,
         _ctx: &Context<'_>,
         #[graphql(desc = "pagination (first and offset)")] page: Option<Pagination>,
-    ) -> NameList {
-        NameList { pagination: page }
+    ) -> NameListWithError {
+        NameListWithError::new(page)
     }
 
     pub async fn items(
