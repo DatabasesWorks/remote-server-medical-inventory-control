@@ -61,11 +61,11 @@ pub enum Error {
     OffsetError(OffsetError),
 }
 
-pub struct NameListError(pub Error);
+pub struct NameListError(pub Vec<Error>);
 
 #[Object]
 impl NameListError {
-    async fn error(&self) -> &Error {
+    async fn errors(&self) -> &Vec<Error> {
         &self.0
     }
 }
@@ -79,16 +79,22 @@ pub enum NameListWithError {
 impl NameListWithError {
     pub fn new(pagination: Option<Pagination>) -> NameListWithError {
         match NameListWithError::check_error(&pagination) {
-            Some(error) => NameListWithError::NameListError(NameListError(error)),
+            Some(errors) => NameListWithError::NameListError(NameListError(errors)),
             None => NameListWithError::NameList(NameList { pagination }),
         }
     }
 
-    pub fn check_error(pagination: &impl PaginationOption) -> Option<Error> {
+    pub fn check_error(pagination: &impl PaginationOption) -> Option<Vec<Error>> {
+        let mut result = Vec::new();
         if pagination.offset() < 0 {
-            Some(Error::OffsetError(OffsetError(pagination.offset())))
-        } else if pagination.first() < 1 || pagination.first() > MAX_PAGE_SIZE.into() {
-            Some(Error::FirstError(FirstError(pagination.first())))
+            result.push(Error::OffsetError(OffsetError(pagination.offset())))
+        }
+        if pagination.first() < 1 || pagination.first() > MAX_PAGE_SIZE.into() {
+            result.push(Error::FirstError(FirstError(pagination.first())))
+        }
+
+        if result.len() > 0 {
+            Some(result)
         } else {
             None
         }
