@@ -2,15 +2,25 @@ use super::{get_connection, DBBackendConnection, DBConnection};
 
 use crate::database::repository::RepositoryError;
 
+use futures_util::Future;
+use std::ops::Deref;
+
 use diesel::{
     connection::TransactionManager,
     r2d2::{ConnectionManager, Pool},
     Connection,
 };
-use futures_util::Future;
 
 pub struct StorageConnection {
     pub connection: DBConnection,
+}
+
+impl Deref for StorageConnection {
+    type Target = DBConnection;
+
+    fn deref(&self) -> &DBConnection {
+        &self.connection
+    }
 }
 
 pub enum TransactionError<E> {

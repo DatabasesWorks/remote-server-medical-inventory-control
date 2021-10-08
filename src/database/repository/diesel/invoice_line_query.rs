@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use crate::database::{
     repository::RepositoryError,
     schema::{
@@ -38,7 +40,7 @@ impl<'a> InvoiceLineQueryRepository<'a> {
             .filter(invoice_line_dsl::invoice_id.eq(invoice_id))
             .inner_join(item_dsl::item)
             .inner_join(stock_line_dsl::stock_line)
-            .load::<InvoiceLineQueryJoin>(&self.connection.connection)?)
+            .load::<InvoiceLineQueryJoin>(self.connection.deref())?)
     }
 
     /// Returns all invoice lines for the provided invoice ids.
@@ -50,7 +52,7 @@ impl<'a> InvoiceLineQueryRepository<'a> {
             .filter(invoice_line_dsl::invoice_id.eq_any(invoice_ids))
             .inner_join(item_dsl::item)
             .inner_join(stock_line_dsl::stock_line)
-            .load::<InvoiceLineQueryJoin>(&self.connection.connection)?)
+            .load::<InvoiceLineQueryJoin>(self.connection.deref())?)
     }
 
     /// Calculates invoice line stats for a given invoice ids
@@ -62,7 +64,7 @@ impl<'a> InvoiceLineQueryRepository<'a> {
             ))
             .group_by(invoice_line_dsl::invoice_id)
             .filter(invoice_line_dsl::invoice_id.eq_any(invoice_ids))
-            .load(&self.connection.connection)?;
+            .load(self.connection.deref())?;
 
         Ok(results
             .iter()
