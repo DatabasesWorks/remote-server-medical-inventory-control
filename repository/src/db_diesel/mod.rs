@@ -2,6 +2,7 @@ use crate::repository_error::RepositoryError;
 
 mod central_sync_buffer;
 mod central_sync_cursor;
+mod document;
 mod invoice;
 mod invoice_line;
 mod invoice_line_query;
@@ -24,6 +25,7 @@ mod user_account;
 
 pub use central_sync_buffer::CentralSyncBufferRepository;
 pub use central_sync_cursor::CentralSyncCursorRepository;
+pub use document::DocumentRepository;
 pub use invoice::{InvoiceRepository, OutboundShipmentRepository};
 pub use invoice_line::InvoiceLineRepository;
 pub use invoice_line_query::{InvoiceLineQueryRepository, InvoiceLineStats};
