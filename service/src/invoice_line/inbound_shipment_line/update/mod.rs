@@ -1,4 +1,3 @@
-use crate::WithDBError;
 use domain::inbound_shipment::UpdateInboundShipmentLine;
 use repository::{
     InvoiceLineRowRepository, RepositoryError, StockLineRowRepository, StorageConnectionManager,
@@ -64,17 +63,5 @@ pub enum UpdateInboundShipmentLineError {
 impl From<RepositoryError> for UpdateInboundShipmentLineError {
     fn from(error: RepositoryError) -> Self {
         UpdateInboundShipmentLineError::DatabaseError(error)
-    }
-}
-
-impl<ERR> From<WithDBError<ERR>> for UpdateInboundShipmentLineError
-where
-    ERR: Into<UpdateInboundShipmentLineError>,
-{
-    fn from(result: WithDBError<ERR>) -> Self {
-        match result {
-            WithDBError::DatabaseError(error) => error.into(),
-            WithDBError::Error(error) => error.into(),
-        }
     }
 }
