@@ -7,7 +7,7 @@ use crate::{
             stock_take::{self, dsl as stock_take_dsl},
             store::{self, dsl as store_dsl},
         },
-        StockTakeRow, StockTakeStatus, StockTakeType, StoreRow,
+        StockTakeRow, StockTakeStatus, StoreRow,
     },
     DBType, RepositoryError, StorageConnection,
 };
@@ -21,7 +21,6 @@ use diesel::{
 pub struct StockTakeFilter {
     pub id: Option<EqualFilter<String>>,
     pub store_id: Option<EqualFilter<String>>,
-    pub r#type: Option<EqualFilter<StockTakeType>>,
     pub status: Option<EqualFilter<StockTakeStatus>>,
     pub created_datetime: Option<DatetimeFilter>,
     pub finalised_datetime: Option<DatetimeFilter>,
@@ -32,7 +31,6 @@ impl StockTakeFilter {
         StockTakeFilter {
             id: None,
             store_id: None,
-            r#type: None,
             status: None,
             created_datetime: None,
             finalised_datetime: None,
@@ -46,11 +44,6 @@ impl StockTakeFilter {
 
     pub fn store_id(mut self, filter: EqualFilter<String>) -> Self {
         self.store_id = Some(filter);
-        self
-    }
-
-    pub fn r#type(mut self, filter: EqualFilter<StockTakeType>) -> Self {
-        self.r#type = Some(filter);
         self
     }
 
@@ -76,6 +69,7 @@ pub enum StockTakeSortField {
     FinalisedDatetime,
 }
 
+#[derive(Debug)]
 pub struct StockTake {
     pub stock_take: StockTakeRow,
     pub store: StoreRow,
@@ -95,11 +89,7 @@ pub fn create_filtered_query<'a>(filter: Option<StockTakeFilter>) -> BoxedStockT
     if let Some(f) = filter {
         apply_equal_filter!(query, f.id, stock_take::id);
         apply_equal_filter!(query, f.store_id, stock_take::store_id);
-        if let Some(value) = f.r#type {
-            if let Some(eq) = value.equal_to {
-                query = query.filter(stock_take::type_.eq(eq));
-            }
-        }
+
         if let Some(value) = f.status {
             if let Some(eq) = value.equal_to {
                 query = query.filter(stock_take::status.eq(eq));
@@ -145,12 +135,12 @@ impl<'a> StockTakeRepository<'a> {
 
         if let Some(sort) = sort {
             match sort.key {
-                StockTakeSortField::Status => apply_sort!(query, sort, stock_take_dsl::type_),
+                StockTakeSortField::Status => apply_sort!(query, sort, stock_take_dsl::status),
                 StockTakeSortField::CreatedDatetime => {
-                    apply_sort!(query, sort, stock_take_dsl::type_)
+                    apply_sort!(query, sort, stock_take_dsl::created_datetime)
                 }
                 StockTakeSortField::FinalisedDatetime => {
-                    apply_sort!(query, sort, stock_take_dsl::type_)
+                    apply_sort!(query, sort, stock_take_dsl::finalised_datetime)
                 }
             }
         } else {

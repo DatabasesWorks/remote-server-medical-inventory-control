@@ -4,13 +4,6 @@ use diesel_derive_enum::DbEnum;
 
 #[derive(DbEnum, Debug, Clone, PartialEq, Eq)]
 #[DbValueStyle = "SCREAMING_SNAKE_CASE"]
-pub enum StockTakeType {
-    // TODO use proper type
-    Dummy,
-}
-
-#[derive(DbEnum, Debug, Clone, PartialEq, Eq)]
-#[DbValueStyle = "SCREAMING_SNAKE_CASE"]
 pub enum StockTakeStatus {
     New,
     Finalized,
@@ -23,7 +16,6 @@ pub struct StockTakeRow {
     pub store_id: String,
     pub comment: Option<String>,
     pub description: Option<String>,
-    pub type_: StockTakeType,
     pub status: StockTakeStatus,
     pub created_datetime: NaiveDateTime,
     pub finalised_datetime: Option<NaiveDateTime>,

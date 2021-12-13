@@ -39,10 +39,11 @@ impl<'a> StockTakeRowRepository<'a> {
         Ok(())
     }
 
-    pub fn find_one_by_id(&self, id: &str) -> Result<StockTakeRow, RepositoryError> {
+    pub fn find_one_by_id(&self, id: &str) -> Result<Option<StockTakeRow>, RepositoryError> {
         let result = stock_take_dsl::stock_take
             .filter(stock_take_dsl::id.eq(id))
-            .first(&self.connection.connection);
+            .first(&self.connection.connection)
+            .optional();
         result.map_err(|err| RepositoryError::from(err))
     }
 

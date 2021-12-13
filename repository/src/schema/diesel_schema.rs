@@ -230,7 +230,6 @@ table! {
         store_id -> Text,
         comment	-> Nullable<Text>,
         description -> Nullable<Text>,
-        #[sql_name = "type"] type_ -> crate::schema::stock_take::StockTakeTypeMapping,
         status -> crate::schema::stock_take::StockTakeStatusMapping,
         created_datetime -> Timestamp,
         finalised_datetime -> Nullable<Timestamp>,
